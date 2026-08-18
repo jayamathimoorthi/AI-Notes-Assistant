@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Notewise AI Notes Assistant</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="notewise-app">
+
+        <!-- Top Header -->
+        <header class="chat-header">
+
+            <div class="brand">
+                <div class="brand-icon">✦</div>
+
+                <div>
+                    <h1>Notewise AI</h1>
+                    <span>Notes Assistant</span>
+                </div>
+            </div>
+
+            <div class="online-status">
+                <span></span>
+                AI Online
+            </div>
+
+        </header>
+
+
+        <!-- Main Chat -->
+        <main class="chat-main">
+
+            <div id="chat-box" class="chat-box">
+
+                <!-- Welcome Message -->
+                <div class="welcome-section">
+
+                    <div class="welcome-icon">
+                        ✦
+                    </div>
+
+                    <h2>
+                        Your notes.<br>
+                        <span>Your AI assistant.</span>
+                    </h2>
+
+                    <p>
+                        Upload your notes and ask questions.
+                        I'll help you understand your study material.
+                    </p>
+
+                </div>
+
+
+                <!-- Bot Message -->
+                <div class="message bot-message">
+
+                    <div class="bot-avatar">
+                        ✦
+                    </div>
+
+                    <div class="message-content">
+
+                        <div class="message-name">
+                            Notewise AI
+                        </div>
+
+                        <p>
+                            Hi! 👋 Upload your PDF notes and ask me
+                            anything related to them.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Input Area -->
+            <div class="input-area">
+
+                <div class="file-row">
+
+                    <label for="file-input"
+                           class="upload-button">
+
+                        📎 Upload Notes
+
+                    </label>
+
+                    <input
+                        type="file"
+                        id="file-input"
+                        accept=".pdf"
+                        hidden
+                    >
+
+                    <span id="file-name">
+                        No file selected
+                    </span>
+
+                </div>
+
+
+                <div class="input-box">
+
+                    <input
+                        type="text"
+                        id="user-input"
+                        placeholder="Ask something from your notes..."
+                        autocomplete="off"
+                    >
+
+                    <button id="send-button">
+                        ➤
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <p class="footer-text">
+                Notewise AI answers questions based on your uploaded notes.
+            </p>
+
+        </main>
+
+    </div>
+
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>
