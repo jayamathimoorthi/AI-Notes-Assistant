@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - AI Notes Assistant</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #4c1d95, #6d28d9, #2563eb);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-card {
+            width: 390px;
+            max-width: 90%;
+            background: white;
+            border-radius: 22px;
+            padding: 35px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            text-align: center;
+        }
+
+        .logo {
+            width: 75px;
+            height: 75px;
+            margin: 0 auto 18px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #6d28d9, #2563eb);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 27px;
+            font-weight: bold;
+        }
+
+        h1 {
+            font-size: 27px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 28px;
+            font-size: 15px;
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .input-box:focus {
+            border-color: #6d28d9;
+            box-shadow: 0 0 0 3px rgba(109,40,217,0.12);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6d28d9, #2563eb);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .login-btn:hover {
+            opacity: 0.92;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 22px 0;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            height: 1px;
+            background: #e5e7eb;
+            flex: 1;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            background: white;
+            color: #374151;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .google-btn:hover {
+            background: #f9fafb;
+        }
+
+        .message {
+            margin-top: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .signup-text {
+            margin-top: 20px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login-card">
+
+    <div class="logo">AI</div>
+
+    <h1>AI Notes Assistant</h1>
+
+    <p class="subtitle">
+        Login to study smarter
+    </p>
+
+    <input
+        type="email"
+        id="email"
+        class="input-box"
+        placeholder="Email"
+    >
+
+    <input
+        type="password"
+        id="password"
+        class="input-box"
+        placeholder="Password"
+    >
+
+    <button
+        class="login-btn"
+        id="loginBtn"
+    >
+        Login
+    </button>
+
+    <div class="divider">
+        OR
+    </div>
+
+    <button
+        class="google-btn"
+        id="googleBtn"
+    >
+        Continue with Google
+    </button>
+
+    <p
+        id="message"
+        class="message"
+    ></p>
+
+    <p class="signup-text">
+        Login using your Firebase account
+    </p>
+
+</div>
+
+
+<!-- =========================
+     FIREBASE
+========================= -->
+
+<script type="module">
+
+    import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
+    import {
+        getAuth,
+        signInWithEmailAndPassword,
+        GoogleAuthProvider,
+        signInWithPopup
+    }
+    from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+
+    // Firebase Configuration
+
+    const firebaseConfig = {
+
+        apiKey: "AIzaSyAv_MsxM0FBa1B7fjnL7c0RwcbnLH2Z_3s",
+
+        authDomain:
+            "ai-notes-assistant-b7b56.firebaseapp.com",
+
+        projectId:
+            "ai-notes-assistant-b7b56",
+
+        storageBucket:
+            "ai-notes-assistant-b7b56.firebasestorage.app",
+
+        messagingSenderId:
+            "780548889961",
+
+        appId:
+            "1:780548889961:web:3d3e33f5dcf7222bf831f8",
+
+        measurementId:
+            "G-EDKK1DLBT5"
+
+    };
+
+
+    // Initialize Firebase
+
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth(app);
+
+    const provider = new GoogleAuthProvider();
+
+
+    // =========================
+    // EMAIL LOGIN
+    // =========================
+
+    document
+        .getElementById("loginBtn")
+        .addEventListener("click", async () => {
+
+            const email =
+                document.getElementById("email").value.trim();
+
+            const password =
+                document.getElementById("password").value;
+
+            const message =
+                document.getElementById("message");
+
+
+            if (!email || !password) {
+
+                message.textContent =
+                    "Please enter email and password.";
+
+                message.style.color = "#dc2626";
+
+                return;
+            }
+
+
+            message.textContent =
+                "Logging in...";
+
+            message.style.color = "#6d28d9";
+
+
+            try {
+
+                await signInWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+
+                message.textContent =
+                    "Login successful!";
+
+                message.style.color = "#16a34a";
+
+
+                setTimeout(() => {
+
+                    window.location.href = "/notes";
+
+                }, 700);
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                message.textContent =
+                    getFirebaseError(error.code);
+
+                message.style.color = "#dc2626";
+
+            }
+
+        });
+
+
+    // =========================
+    // GOOGLE LOGIN
+    // =========================
+
+    document
+        .getElementById("googleBtn")
+        .addEventListener("click", async () => {
+
+            const message =
+                document.getElementById("message");
+
+            message.textContent =
+                "Connecting to Google...";
+
+            message.style.color = "#6d28d9";
+
+
+            try {
+
+                await signInWithPopup(
+                    auth,
+                    provider
+                );
+
+                message.textContent =
+                    "Google login successful!";
+
+                message.style.color = "#16a34a";
+
+
+                setTimeout(() => {
+
+                    window.location.href = "/notes";
+
+                }, 700);
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                message.textContent =
+                    getFirebaseError(error.code);
+
+                message.style.color = "#dc2626";
+
+            }
+
+        });
+
+
+    // =========================
+    // FIREBASE ERROR MESSAGES
+    // =========================
+
+    function getFirebaseError(code) {
+
+        switch (code) {
+
+            case "auth/invalid-credential":
+                return "Invalid email or password.";
+
+            case "auth/user-not-found":
+                return "No account found with this email.";
+
+            case "auth/wrong-password":
+                return "Incorrect password.";
+
+            case "auth/invalid-email":
+                return "Please enter a valid email.";
+
+            case "auth/popup-closed-by-user":
+                return "Google login window was closed.";
+
+            case "auth/popup-blocked":
+                return "Google login popup was blocked by the browser.";
+
+            case "auth/unauthorized-domain":
+                return "This website is not authorized in Firebase.";
+
+            default:
+                return "Login failed. Please try again.";
+        }
+
+    }
+
+</script>
+
+</body>
+</html>

@@ -2,143 +2,272 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Notewise AI Notes Assistant</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <title>AI Notes Assistant</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
 </head>
+
 
 <body>
 
-    <div class="notewise-app">
 
-        <!-- Top Header -->
-        <header class="chat-header">
+<div class="app">
 
-            <div class="brand">
-                <div class="brand-icon">✦</div>
 
-                <div>
-                    <h1>Notewise AI</h1>
-                    <span>Notes Assistant</span>
-                </div>
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                AI
             </div>
 
-            <div class="online-status">
-                <span></span>
-                AI Online
+            <div>
+                <h2>
+                    AI Notes
+                </h2>
+
+                <span>
+                    Assistant
+                </span>
             </div>
+
+        </div>
+
+
+        <button
+            class="new-chat"
+            id="newChatBtn"
+        >
+            + New Chat
+        </button>
+
+
+        <div class="sidebar-title">
+            NOTES
+        </div>
+
+
+        <div
+            class="upload-area"
+            id="uploadArea"
+        >
+
+            <div class="upload-icon">
+                📄
+            </div>
+
+            <strong>
+                Upload PDF
+            </strong>
+
+            <span>
+                Study from your notes
+            </span>
+
+        </div>
+
+
+        <input
+            type="file"
+            id="pdfInput"
+            accept=".pdf"
+            hidden
+        >
+        <div class="sidebar-title recent-title">
+            RECENT
+        </div>
+
+
+        <div
+            id="recentChats"
+            class="recent-chats"
+        >
+        </div>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="language-label">
+                Language
+            </div>
+
+            <select id="languageSelect">
+
+                <option value="Tanglish">
+                    Tanglish
+                </option>
+
+                <option value="Tamil">
+                    தமிழ்
+                </option>
+
+                <option value="English">
+                    English
+                </option>
+
+            </select>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- MAIN AREA -->
+
+    <main class="main">
+
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <button
+                id="menuBtn"
+                class="menu-btn"
+            >
+                ☰
+            </button>
+
+
+            <div class="top-title">
+
+                <strong>
+                    AI Notes Assistant
+                </strong>
+
+                <span id="fileStatus">
+                    No PDF uploaded
+                </span>
+
+            </div>
+
+
+            <select
+                id="topLanguage"
+                class="top-language"
+            >
+
+                <option value="Tanglish">
+                    Tanglish
+                </option>
+
+                <option value="Tamil">
+                    தமிழ்
+                </option>
+
+                <option value="English">
+                    English
+                </option>
+
+            </select>
 
         </header>
 
 
-        <!-- Main Chat -->
-        <main class="chat-main">
 
-            <div id="chat-box" class="chat-box">
+        <!-- CHAT -->
 
-                <!-- Welcome Message -->
-                <div class="welcome-section">
+        <section
+            id="chat"
+            class="chat"
+        >
 
-                    <div class="welcome-icon">
-                        ✦
-                    </div>
 
-                    <h2>
-                        Your notes.<br>
-                        <span>Your AI assistant.</span>
-                    </h2>
+            <div
+                id="welcome"
+                class="welcome"
+            >
 
-                    <p>
-                        Upload your notes and ask questions.
-                        I'll help you understand your study material.
-                    </p>
-
+                <div class="welcome-icon">
+                    ✨
                 </div>
 
+                <h1>
+                    What would you like to learn?
+                </h1>
 
-                <!-- Bot Message -->
-                <div class="message bot-message">
+                <p>
+                    Upload your PDF notes and ask
+                    questions from your notes.
+                </p>
 
-                    <div class="bot-avatar">
-                        ✦
-                    </div>
 
-                    <div class="message-content">
+                <button
+                    id="welcomeUpload"
+                    class="welcome-upload"
+                >
+                    📄 Upload PDF Notes
+                </button>
 
-                        <div class="message-name">
-                            Notewise AI
-                        </div>
+            </div>
 
-                        <p>
-                            Hi! 👋 Upload your PDF notes and ask me
-                            anything related to them.
-                        </p>
+        </section>
 
-                    </div>
 
-                </div>
+
+        <!-- INPUT AREA -->
+
+        <div class="input-section">
+
+
+            <div
+                id="uploadStatus"
+                class="upload-status"
+            >
+            </div>
+
+
+            <div class="input-box">
+
+
+                <textarea
+                    id="questionInput"
+                    rows="1"
+                    placeholder="Ask something from your notes..."
+                ></textarea>
+
+
+                <button
+                    id="sendBtn"
+                    class="send-btn"
+                >
+                    ➤
+                </button>
 
             </div>
 
 
-            <!-- Input Area -->
-            <div class="input-area">
-
-                <div class="file-row">
-
-                    <label for="file-input"
-                           class="upload-button">
-
-                        📎 Upload Notes
-
-                    </label>
-
-                    <input
-                        type="file"
-                        id="file-input"
-                        accept=".pdf"
-                        hidden
-                    >
-
-                    <span id="file-name">
-                        No file selected
-                    </span>
-
-                </div>
-
-
-                <div class="input-box">
-
-                    <input
-                        type="text"
-                        id="user-input"
-                        placeholder="Ask something from your notes..."
-                        autocomplete="off"
-                    >
-
-                    <button id="send-button">
-                        ➤
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <p class="footer-text">
-                Notewise AI answers questions based on your uploaded notes.
+            <p class="disclaimer">
+                AI Notes Assistant answers using your uploaded notes.
             </p>
 
-        </main>
-
-    </div>
+        </div>
 
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    </main>
+
+</div>
+
+
+<script
+    src="{{ url_for('static', filename='script.js') }}"
+></script>
 
 </body>
 
