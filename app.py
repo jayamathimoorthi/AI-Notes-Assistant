@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, session
 from pypdf import PdfReader
+from google import genai
 import os
 import uuid
 
@@ -12,6 +13,17 @@ app.secret_key = os.environ.get(
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# =========================
+# GEMINI AI
+# =========================
+
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
+if GEMINI_API_KEY:
+    client = genai.Client(api_key=GEMINI_API_KEY)
+else:
+    client = None
 
 
 # =========================
@@ -90,7 +102,7 @@ def upload_pdf():
             }), 400
 
         # =========================
-        # SAVE TEXT TO SERVER
+        # SAVE PDF TEXT
         # =========================
 
         file_id = str(uuid.uuid4())
@@ -108,14 +120,12 @@ def upload_pdf():
 
             f.write(text)
 
-        # IMPORTANT:
-        # Only small filename stored in session
+        # Only filename is stored in session
         session["notes_file"] = file_id + ".txt"
 
         print("PDF uploaded successfully")
         print("Pages:", len(reader.pages))
         print("Characters:", len(text))
-        print("Saved:", text_file)
 
         return jsonify({
 
@@ -173,7 +183,7 @@ def ask_question():
             }), 400
 
         # =========================
-        # GET PDF FILE FROM SESSION
+        # GET UPLOADED PDF
         # =========================
 
         notes_file = session.get(
@@ -212,15 +222,54 @@ def ask_question():
             notes_text = f.read()
 
         # =========================
-        # TEMPORARY RESPONSE
+        # CHECK GEMINI
         # =========================
 
-        # Gemini integration can be added here
+        if client is None:
 
-        answer = (
-            "Your question was received successfully. "
-            "The PDF is uploaded and ready for AI processing."
+            return jsonify({
+                "success": False,
+                "error": "Gemini API key is not configured"
+            }), 500
+
+        # =========================
+        # GEMINI PROMPT
+        # =========================
+
+        prompt = f"""
+You are an AI Notes Assistant.
+
+Answer the user's question ONLY using the uploaded PDF content.
+
+Do not use outside knowledge.
+
+If the answer is not available in the PDF, say:
+
+"I could not find this information in the uploaded notes."
+
+Give clear and simple answers.
+
+If the user asks for topics, list the important topics found in the PDF.
+
+If the user asks for an explanation, explain only from the PDF.
+
+UPLOADED PDF CONTENT:
+{notes_text}
+
+USER QUESTION:
+{question}
+"""
+
+        # =========================
+        # GEMINI REQUEST
+        # =========================
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
         )
+
+        answer = response.text
 
         return jsonify({
 
@@ -273,5 +322,4 @@ if __name__ == "__main__":
                 5000
             )
         )
-            )
-
+        )
