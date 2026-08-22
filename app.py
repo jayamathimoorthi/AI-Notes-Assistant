@@ -14,6 +14,10 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def home():
     return render_template("login.html")
 
+@app.route("/notes")
+def notes():
+    return render_template("index.html")
+
 
 # =========================
 # PDF UPLOAD
