@@ -1,8 +1,8 @@
-* {
+
     box-sizing: border-box;
 }
 
-body {
+body {{
     margin: 0;
     font-family: Arial, sans-serif;
     background: #ffffff;
@@ -644,91 +644,4 @@ body {
 
     text-align: center;
 
-    font-size: 10px;
-
-    color: #999;
-
-    margin: 8px 0 0;
-
-}
-
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 800px) {
-
-    .sidebar {
-
-        position: fixed;
-
-        left: -280px;
-
-        top: 0;
-
-        bottom: 0;
-
-        z-index: 100;
-
-        transition: left 0.25s;
-
-    }
-
-
-    .sidebar.open {
-
-        left: 0;
-
-    }
-
-
-    .menu-btn {
-
-        display: block;
-
-    }
-
-
-    .chat {
-
-        padding: 25px 15px;
-
-    }
-
-
-    .input-section {
-
-        padding: 12px;
-
-    }
-
-
-    .welcome {
-
-        margin: 60px auto;
-
-    }
-
-
-    .welcome h1 {
-
-        font-size: 24px;
-
-    }
-
-
-    .user-bubble {
-
-        max-width: 85%;
-
-    }
-
-
-    .ai-content {
-
-        font-size: 15px;
-
-    }
-
-}
+    font
