@@ -1,10 +1,14 @@
 from flask import Flask, render_template, request, jsonify, session
 from pypdf import PdfReader
 import os
+import uuid
 
 app = Flask(__name__)
 
-app.secret_key = "notes-assistant-secret-key"
+app.secret_key = os.environ.get(
+    "SECRET_KEY",
+    "notes-assistant-secret-key"
+)
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -43,9 +47,7 @@ def upload_pdf():
                 "error": "No PDF file received"
             }), 400
 
-
         file = request.files["file"]
-
 
         if file.filename == "":
             return jsonify({
@@ -53,29 +55,33 @@ def upload_pdf():
                 "error": "Please select a PDF file"
             }), 400
 
-
         if not file.filename.lower().endswith(".pdf"):
             return jsonify({
                 "success": False,
                 "error": "Only PDF files are allowed"
             }), 400
 
+        # =========================
+        # READ PDF
+        # =========================
 
-        # Read PDF
         reader = PdfReader(file)
 
-        text = ""
-
+        text_parts = []
 
         for page in reader.pages:
 
             page_text = page.extract_text()
 
             if page_text:
-                text += page_text + "\n"
+                text_parts.append(page_text)
 
+        text = "\n".join(text_parts)
 
-        # Check extracted text
+        # =========================
+        # CHECK TEXT
+        # =========================
+
         if not text.strip():
 
             return jsonify({
@@ -83,15 +89,33 @@ def upload_pdf():
                 "error": "Could not extract text from this PDF"
             }), 400
 
+        # =========================
+        # SAVE TEXT TO SERVER
+        # =========================
 
-        # Save notes in session
-        session["notes_text"] = text
+        file_id = str(uuid.uuid4())
 
+        text_file = os.path.join(
+            UPLOAD_FOLDER,
+            file_id + ".txt"
+        )
+
+        with open(
+            text_file,
+            "w",
+            encoding="utf-8"
+        ) as f:
+
+            f.write(text)
+
+        # IMPORTANT:
+        # Only small filename stored in session
+        session["notes_file"] = file_id + ".txt"
 
         print("PDF uploaded successfully")
         print("Pages:", len(reader.pages))
         print("Characters:", len(text))
-
+        print("Saved:", text_file)
 
         return jsonify({
 
@@ -105,11 +129,9 @@ def upload_pdf():
 
         })
 
-
     except Exception as e:
 
         print("PDF UPLOAD ERROR:", str(e))
-
 
         return jsonify({
 
@@ -138,9 +160,10 @@ def ask_question():
                 "error": "No question received"
             }), 400
 
-
-        question = data.get("question", "").strip()
-
+        question = data.get(
+            "question",
+            ""
+        ).strip()
 
         if not question:
 
@@ -149,25 +172,55 @@ def ask_question():
                 "error": "Please enter a question"
             }), 400
 
+        # =========================
+        # GET PDF FILE FROM SESSION
+        # =========================
 
-        notes_text = session.get("notes_text", "")
+        notes_file = session.get(
+            "notes_file"
+        )
 
-
-        if not notes_text:
+        if not notes_file:
 
             return jsonify({
                 "success": False,
                 "error": "Please upload a PDF first"
             }), 400
 
+        text_file = os.path.join(
+            UPLOAD_FOLDER,
+            notes_file
+        )
 
-        # Temporary response
+        if not os.path.exists(text_file):
+
+            return jsonify({
+                "success": False,
+                "error": "Uploaded PDF data was not found. Please upload again."
+            }), 400
+
+        # =========================
+        # READ PDF TEXT
+        # =========================
+
+        with open(
+            text_file,
+            "r",
+            encoding="utf-8"
+        ) as f:
+
+            notes_text = f.read()
+
+        # =========================
+        # TEMPORARY RESPONSE
+        # =========================
+
         # Gemini integration can be added here
+
         answer = (
             "Your question was received successfully. "
             "The PDF is uploaded and ready for AI processing."
         )
-
 
         return jsonify({
 
@@ -177,11 +230,9 @@ def ask_question():
 
         })
 
-
     except Exception as e:
 
         print("ASK ERROR:", str(e))
-
 
         return jsonify({
 
@@ -215,9 +266,12 @@ def test():
 if __name__ == "__main__":
 
     app.run(
-
         host="0.0.0.0",
+        port=int(
+            os.environ.get(
+                "PORT",
+                5000
+            )
+        )
+            )
 
-        port=int(os.environ.get("PORT", 5000))
-
-    )
