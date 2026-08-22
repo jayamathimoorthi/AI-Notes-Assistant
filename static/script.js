@@ -1,38 +1,63 @@
 // =========================
-// PDF ELEMENTS
+// GET HTML ELEMENTS
 // =========================
 
-const pdfFile = document.getElementById("pdfInput");
-const uploadBtn = document.getElementById("uploadBtn");
+const pdfInput = document.getElementById("pdfInput");
+const uploadArea = document.getElementById("uploadArea");
+const welcomeUpload = document.getElementById("welcomeUpload");
 const uploadStatus = document.getElementById("uploadStatus");
+const fileStatus = document.getElementById("fileStatus");
+
+const sendBtn = document.getElementById("sendBtn");
+const questionInput = document.getElementById("questionInput");
+
+const newChatBtn = document.getElementById("newChatBtn");
+const chat = document.getElementById("chat");
+
+const languageSelect =
+    document.getElementById("languageSelect");
+
+const topLanguage =
+    document.getElementById("topLanguage");
+
+const menuBtn =
+    document.getElementById("menuBtn");
+
+const sidebar =
+    document.querySelector(".sidebar");
 
 
 // =========================
-// PDF UPLOAD BUTTON
+// PDF FILE PICKER
 // =========================
 
-uploadBtn.addEventListener("click", () => {
+uploadArea.addEventListener("click", () => {
 
-    // Open Windows file picker
-    pdfFile.click();
+    pdfInput.click();
+
+});
+
+
+welcomeUpload.addEventListener("click", () => {
+
+    pdfInput.click();
 
 });
 
 
 // =========================
-// PDF FILE SELECTED
+// PDF UPLOAD
 // =========================
 
-pdfFile.addEventListener("change", async () => {
+pdfInput.addEventListener("change", async () => {
 
-    const file = pdfFile.files[0];
+    const file = pdfInput.files[0];
 
     if (!file) {
         return;
     }
 
 
-    // Check PDF
     if (!file.name.toLowerCase().endsWith(".pdf")) {
 
         uploadStatus.textContent =
@@ -40,36 +65,38 @@ pdfFile.addEventListener("change", async () => {
 
         uploadStatus.style.color = "red";
 
-        pdfFile.value = "";
+        pdfInput.value = "";
 
         return;
     }
 
 
-    // Prepare file
-    const formData = new FormData();
-
-    formData.append("file", file);
-
-
     uploadStatus.textContent =
-        "Uploading PDF...";
+        "Uploading PDF... Please wait.";
 
     uploadStatus.style.color =
         "#7c3aed";
 
 
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+
     try {
 
         const response = await fetch("/upload", {
+
             method: "POST",
+
             body: formData
+
         });
 
 
-        // Read response as text
         const text =
             await response.text();
+
 
         console.log(
             "Server response:",
@@ -80,7 +107,6 @@ pdfFile.addEventListener("change", async () => {
         let data;
 
 
-        // Convert to JSON
         try {
 
             data = JSON.parse(text);
@@ -92,12 +118,6 @@ pdfFile.addEventListener("change", async () => {
                 error
             );
 
-            console.error(
-                "Server returned:",
-                text
-            );
-
-
             uploadStatus.textContent =
                 "PDF upload failed. Server error.";
 
@@ -108,7 +128,6 @@ pdfFile.addEventListener("change", async () => {
         }
 
 
-        // Check server error
         if (!response.ok) {
 
             uploadStatus.textContent =
@@ -122,30 +141,32 @@ pdfFile.addEventListener("change", async () => {
         }
 
 
-        // Successful upload
         if (data.success) {
 
             uploadStatus.textContent =
-                data.message ||
-                "PDF uploaded successfully!";
+                "✓ " +
+                (data.message ||
+                "PDF uploaded successfully!");
 
             uploadStatus.style.color =
                 "green";
 
 
-            // Update top status
-            const fileStatus =
-                document.getElementById(
-                    "fileStatus"
-                );
+            fileStatus.textContent =
+                file.name;
 
 
-            if (fileStatus) {
+            // Hide welcome screen
+            const welcome =
+                document.getElementById("welcome");
 
-                fileStatus.textContent =
-                    file.name;
+            if (welcome) {
+
+                welcome.style.display =
+                    "none";
 
             }
+
 
         } else {
 
@@ -155,6 +176,7 @@ pdfFile.addEventListener("change", async () => {
 
             uploadStatus.style.color =
                 "red";
+
         }
 
 
@@ -171,6 +193,278 @@ pdfFile.addEventListener("change", async () => {
 
         uploadStatus.style.color =
             "red";
+
     }
 
 });
+
+
+// =========================
+// SEND QUESTION
+// =========================
+
+sendBtn.addEventListener("click", () => {
+
+    sendQuestion();
+
+});
+
+
+questionInput.addEventListener("keydown", (event) => {
+
+    if (
+        event.key === "Enter" &&
+        !event.shiftKey
+    ) {
+
+        event.preventDefault();
+
+        sendQuestion();
+
+    }
+
+});
+
+
+// =========================
+// SEND QUESTION FUNCTION
+// =========================
+
+async function sendQuestion() {
+
+    const question =
+        questionInput.value.trim();
+
+
+    if (!question) {
+
+        return;
+
+    }
+
+
+    // User message
+    addMessage(
+        question,
+        "user"
+    );
+
+
+    questionInput.value = "";
+
+
+    // Loading message
+    const loading =
+        addMessage(
+            "Thinking...",
+            "bot"
+        );
+
+
+    try {
+
+        const response =
+            await fetch("/ask", {
+
+                method: "POST",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json"
+
+                },
+
+                body: JSON.stringify({
+
+                    question: question
+
+                })
+
+            });
+
+
+        const data =
+            await response.json();
+
+
+        if (data.success) {
+
+            loading.textContent =
+                data.answer;
+
+        } else {
+
+            loading.textContent =
+                data.error ||
+                "Something went wrong.";
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Question Error:",
+            error
+        );
+
+
+        loading.textContent =
+            "Unable to connect to server.";
+
+    }
+
+}
+
+
+// =========================
+// ADD CHAT MESSAGE
+// =========================
+
+function addMessage(
+    message,
+    type
+) {
+
+    const messageDiv =
+        document.createElement("div");
+
+
+    messageDiv.className =
+        "message " + type;
+
+
+    messageDiv.textContent =
+        message;
+
+
+    chat.appendChild(
+        messageDiv
+    );
+
+
+    chat.scrollTop =
+        chat.scrollHeight;
+
+
+    return messageDiv;
+
+}
+
+
+// =========================
+// NEW CHAT
+// =========================
+
+newChatBtn.addEventListener(
+    "click",
+    () => {
+
+        chat.innerHTML = "";
+
+        uploadStatus.textContent = "";
+
+        questionInput.value = "";
+
+        fileStatus.textContent =
+            "No PDF uploaded";
+
+
+        const welcome =
+            document.createElement("div");
+
+
+        welcome.id =
+            "welcome";
+
+        welcome.className =
+            "welcome";
+
+
+        welcome.innerHTML = `
+
+            <div class="welcome-icon">
+                ✨
+            </div>
+
+            <h1>
+                What would you like to learn?
+            </h1>
+
+            <p>
+                Upload your PDF notes and ask
+                questions from your notes.
+            </p>
+
+            <button
+                id="welcomeUpload"
+                class="welcome-upload"
+            >
+                📄 Upload PDF Notes
+            </button>
+
+        `;
+
+
+        chat.appendChild(
+            welcome
+        );
+
+
+        // Reconnect new upload button
+        document
+            .getElementById("welcomeUpload")
+            .addEventListener(
+                "click",
+                () => {
+
+                    pdfInput.click();
+
+                }
+            );
+
+    }
+);
+
+
+// =========================
+// LANGUAGE
+// =========================
+
+languageSelect.addEventListener(
+    "change",
+    () => {
+
+        topLanguage.value =
+            languageSelect.value;
+
+    }
+);
+
+
+topLanguage.addEventListener(
+    "change",
+    () => {
+
+        languageSelect.value =
+            topLanguage.value;
+
+    }
+);
+
+
+// =========================
+// MENU BUTTON
+// =========================
+
+menuBtn.addEventListener(
+    "click",
+    () => {
+
+        sidebar.classList.toggle(
+            "open"
+        );
+
+    }
+);
